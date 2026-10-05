@@ -1,0 +1,14 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!--
+        运行中：实心播放三角。
+        纯白填充：通知小图标在 Android 上只取 alpha 通道、由系统着色，但厂商的岛实现
+        未必会重新着色——直接拿原图渲染时，黑图标在深色岛上就等于看不见。白色两头都成立。
+    -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M7,4 L20.5,12 L7,20 Z" />
+</vector>

@@ -1,0 +1,61 @@
+# ─────────────────────────────────────────────────────────────
+# 工具链：约 1.8 GB，绝对不能进仓库
+#
+# 里面有 Android SDK、Gradle 发行版与依赖缓存，还有一个 147.8 MB 的
+# 安装包压缩文件——GitHub 单文件硬上限是 100 MB，推上去会被直接拒绝。
+# 这些都能按 toolchain/setup/ 里的脚本重建，或者用 Android Studio 自带的环境。
+# ─────────────────────────────────────────────────────────────
+/toolchain/
+
+# ─────────────────────────────────────────────────────────────
+# 构建产物
+# ─────────────────────────────────────────────────────────────
+# APK 走 GitHub Release 附件，不进 git 历史：
+# 二进制放进仓库会让每一次改动都永久留在 .git 里，克隆越来越慢。
+/dist/*.apk
+/dist/*.aab
+
+# Android / Gradle
+android/android/.gradle/
+android/android/build/
+android/android/app/build/
+android/android/captures/
+android/android/.cxx/
+android/android/local.properties
+android/android/.idea/
+android/android/*.iml
+
+# Capacitor / Node
+android/node_modules/
+node_modules/
+
+# ─────────────────────────────────────────────────────────────
+# 密钥：万一以后加了正式签名，别让它被误提交
+# ─────────────────────────────────────────────────────────────
+*.keystore
+*.jks
+keystore.properties
+signing.properties
+
+# ─────────────────────────────────────────────────────────────
+# IDE 本地状态：**含本机绝对路径**，一律不进仓库
+#
+# `.vs/` 是 Visual Studio 的本地缓存，里面的 .vsidx / .wsuo / slnx.sqlite
+# 是二进制索引，实测会带上开发机的完整绝对路径（工作区目录名 + 用户名），
+# 等于把开发机的目录结构一起公开。
+# 这类目录随时会重新生成，删掉不影响任何人。
+# ─────────────────────────────────────────────────────────────
+.vs/
+.vscode/
+.idea/
+
+# ─────────────────────────────────────────────────────────────
+# 日志与临时文件
+# ─────────────────────────────────────────────────────────────
+*.log
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.DS_Store
+Thumbs.db
+tmp/

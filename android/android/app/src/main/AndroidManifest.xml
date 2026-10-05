@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!--
+        关掉备份。SharedPreferences 里存着**配对令牌**，而令牌等同于用户电脑的命令执行权限；
+        开着备份就意味着它会跟着进云备份、也能被 adb backup 拉走。
+        带凭据的应用不该有这个口子。
+    -->
+    <application
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="true">
+
+        <activity
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode|navigation|density"
+            android:name=".MainActivity"
+            android:label="@string/title_activity_main"
+            android:theme="@style/AppTheme.NoActionBarLaunch"
+            android:launchMode="singleTask"
+            android:windowSoftInputMode="adjustResize"
+            android:exported="true">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+        </activity>
+
+        <!--
+            常驻后台连接。类型用 specialUse 而不是 dataSync：Android 15 起 dataSync 有
+            每 24 小时 6 小时的累计上限，而这个工具需要长期挂着连接。
+        -->
+        <service
+            android:name=".ConsoleService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="保持一条到局域网内电脑的实时连接，以便随时在通知上处理智能体的审批与提问。" />
+        </service>
+
+        <!-- 通知上「允许 / 拒绝」按钮的落点；只接受本应用发出的广播。 -->
+        <receiver
+            android:name=".ApprovalReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.dsh.mobileconsole.ANSWER" />
+            </intent-filter>
+        </receiver>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"></meta-data>
+        </provider>
+    </application>
+
+    <!-- Permissions -->
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!--
+        Android 16 实时更新的"提升"权限。
+
+        说明一下现状：我在这份 API 36 SDK 的 android.jar 里逐条目扫过
+        （UTF-8 与 UTF-16 两种编码都试），**没有**这个权限的任何痕迹——
+        既不在平台清单里，也没有 `Manifest.permission` 常量，
+        `canPostPromotedNotifications()` / `FLAG_PROMOTED_ONGOING` /
+        `APP_NOTIFICATION_PROMOTION_SETTINGS` 则都确凿存在。
+
+        所以它可能出现在更新的 QPR/版本上（有 SDK 厂商文档就是这么写的），也可能只是那份文档写早了。
+        **声明它没有任何代价**：平台不认识这个权限名时会直接忽略；真出现了就自动生效。
+        因此这里声明但**不在运行时请求**（对一个不存在的权限调 requestPermissions 会失败）。
+
+        当前实际起作用的关卡是用户侧的「实时更新」开关，
+        见 Settings.ACTION_APP_NOTIFICATION_PROMOTION_SETTINGS。
+    -->
+    <uses-permission android:name="android.permission.POST_PROMOTED_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+</manifest>

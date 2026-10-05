@@ -1,0 +1,12 @@
+# dsh-mobile-console bundle 补丁：以**包名**挂载插件本体。
+#
+# 前提：本包已装进 profile（例如 `dsh plugin --profile desktop add /path/to/dsh-mobile-console`），
+# 且 profile 的 package.json 里 `dsh.profile.bundles` 列出了 dsh-mobile-console。
+#
+# 只想快速试一下、不想装包的话，可以直接在 profile 的 cordis.patch.yml 里写 boot.js 的绝对路径：
+#   - insert:
+#       - id: dsh-mobile-console
+#         name: '/绝对路径/dsh-mobile-console/boot.js'
+- insert:
+    - id: dsh-mobile-console
+      name: dsh-mobile-console

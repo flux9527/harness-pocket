@@ -1,0 +1,20 @@
+ext {
+    minSdkVersion = 24
+    compileSdkVersion = 36
+    targetSdkVersion = 36
+    // 显式钉住 build-tools 版本。不钉的话 AGP 会想要它默认的那版（这里是 35.0.0）
+    // 并试图自己下载，而在这个环境里那一步会因为"SDK 目录不可写"直接失败。
+    // 本地装的 36.0.0 完全够用。
+    buildToolsVersion = '36.0.0'
+    androidxActivityVersion = '1.11.0'
+    androidxAppCompatVersion = '1.7.1'
+    androidxCoordinatorLayoutVersion = '1.3.0'
+    androidxCoreVersion = '1.17.0'
+    androidxFragmentVersion = '1.8.9'
+    coreSplashScreenVersion = '1.2.0'
+    androidxWebkitVersion = '1.14.0'
+    junitVersion = '4.13.2'
+    androidxJunitVersion = '1.3.0'
+    androidxEspressoCoreVersion = '3.7.0'
+    cordovaAndroidVersion = '14.0.1'
+}

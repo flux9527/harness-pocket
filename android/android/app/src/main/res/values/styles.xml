@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+    </style>
+
+    <!--
+        界面是深色的（#11131a）。targetSdk 35+ 强制 edge-to-edge 之后，被让出来的
+        状态栏/导航栏那一条露出的是 windowBackground，原来设的是 @null——会让那条区域
+        颜色不可控。这里显式给成和网页面板一致的深色。
+    -->
+    <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:background">@null</item>
+        <item name="android:windowBackground">@color/mc_window_background</item>
+    </style>
+
+    <!--
+        postSplashScreenTheme 不能省：Theme.SplashScreen 靠它决定"启动图结束之后换成哪个主题"。
+        缺了它，应用会一直停在启动图主题上，上面那个深色 windowBackground 也就不会生效。
+        Capacitor 官方模板里本来就有这一行。
+    -->
+    <style name="AppTheme.NoActionBarLaunch" parent="Theme.SplashScreen">
+        <item name="android:background">@drawable/splash</item>
+        <item name="postSplashScreenTheme">@style/AppTheme.NoActionBar</item>
+    </style>
+</resources>

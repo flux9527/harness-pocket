@@ -1,0 +1,16 @@
+{
+  "name": "harness-pocket-android",
+  "version": "1.0.0",
+  "private": true,
+  "description": "DSH 手机控制台的 Android 客户端：Capacitor 容器 + 原生前台服务 + Android 16 Live Updates 通知，可在通知上直接审批。",
+  "scripts": {
+    "build:apk": "cap sync android && cd android && gradlew.bat assembleDebug"
+  },
+  "dependencies": {
+    "@capacitor/android": "8.5.2",
+    "@capacitor/core": "8.5.2"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "8.5.2"
+  }
+}

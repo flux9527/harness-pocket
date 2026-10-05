@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">DSH 手机控制台</string>
+    <string name="title_activity_main">DSH 手机控制台</string>
+    <string name="package_name">com.dsh.mobileconsole</string>
+    <string name="custom_url_scheme">com.dsh.mobileconsole</string>
+</resources>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    备份与迁移规则（Android 12 / API 31 起生效）。
+
+    为什么要有这个文件：在 Android 12+ 上，光把 allowBackup 设成 false 只能挡住**云备份**，
+    **设备间直传（D2D transfer）仍然会发生**。而应用的 SharedPreferences 里存着配对令牌，
+    令牌等同于用户电脑的命令执行权限——它不该出现在任何一份可以被复制走的副本里。
+
+    所以两边都显式关掉。低版本走 manifest 里的 allowBackup="false" 与 fullBackupContent="false"。
+-->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="root" />
+        <exclude domain="file" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="external" />
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="root" />
+        <exclude domain="file" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="external" />
+    </device-transfer>
+</data-extraction-rules>

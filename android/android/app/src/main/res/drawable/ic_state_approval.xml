@@ -1,0 +1,11 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- 待审批：实心圆里挖出感叹号。evenOdd 让后两条子路径成为镂空。 -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M12,2a10,10 0 1,1 0,20a10,10 0 1,1 0,-20z M11,6.5h2v7h-2z M11,15.4h2v2.2h-2z" />
+</vector>

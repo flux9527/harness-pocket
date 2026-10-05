@@ -1,0 +1,20 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!--
+        终端图标：圆角边框 + ">" + 下划线。用在待办通知上（那条不换状态图标）。
+        纯白填充，理由同 ic_state_*.xml：厂商的岛实现未必会替图标重新着色。
+    -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M5,3h14a2,2 0 0 1 2,2v14a2,2 0 0 1 -2,2h-14a2,2 0 0 1 -2,-2v-14a2,2 0 0 1 2,-2zM5,5.6v12.8h14v-12.8z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M6.4,8.9 5.3,10 8.3,13 5.3,16 6.4,17.1 10.5,13z" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M11,15.2h7v1.6h-7z" />
+</vector>

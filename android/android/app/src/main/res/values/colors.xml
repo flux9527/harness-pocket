@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        窗口底色，和手机控制台网页面板的底色（#11131a）保持一致。
+        edge-to-edge 下状态栏/导航栏那一条露出的就是它，颜色对上了才不会出现
+        "上面一条、下面一条颜色和中间面板对不上"的割裂感。
+    -->
+    <color name="mc_window_background">#FF11131A</color>
+</resources>

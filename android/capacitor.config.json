@@ -1,0 +1,14 @@
+{
+  "appId": "com.dsh.mobileconsole",
+  "appName": "DSH 手机控制台",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https",
+    "cleartext": true,
+    "allowNavigation": ["*"]
+  },
+  "android": {
+    "allowMixedContent": true,
+    "webContentsDebuggingEnabled": true
+  }
+}

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="#0b1220" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <title>DSH 手机控制台</title>
+    <link rel="stylesheet" href="/app.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span id="conn-dot" class="dot dot-idle" aria-hidden="true"></span>
+        <span class="brand-text">DSH 手机控制台</span>
+      </div>
+      <div class="topbar-actions">
+        <button id="btn-home" class="icon-btn" type="button" title="返回应用主页面" aria-label="返回应用主页面" hidden>⌂</button>
+        <button id="btn-settings" class="icon-btn" type="button" title="设置" aria-label="设置">⚙</button>
+      </div>
+    </header>
+
+    <main id="main">
+      <section id="view-pending" class="view" hidden>
+        <div id="pending-list" class="card-list"></div>
+        <p id="pending-empty" class="empty">
+          当前没有待你处理的请求。<br />
+          <span class="muted">模型请求审批或向你提问时，会自动出现在这里。</span>
+        </p>
+      </section>
+
+      <section id="view-sessions" class="view" hidden>
+        <div id="session-list" class="card-list"></div>
+        <p id="sessions-empty" class="empty">还没有发现会话。</p>
+      </section>
+
+      <section id="view-feed" class="view" hidden>
+        <div id="feed-list" class="feed"></div>
+        <p id="feed-empty" class="empty">还没有动态。</p>
+      </section>
+
+      <section id="view-settings" class="view" hidden>
+        <div class="panel">
+          <h2>配对</h2>
+          <p class="muted">把下面这个地址在手机上打开（或扫描宿主端显示的二维码）即可配对这台设备。地址里含有本机访问令牌，请不要外传。</p>
+          <div id="pair-box" class="pair-box"></div>
+          <div class="row">
+            <button id="btn-copy-url" class="btn" type="button">复制地址</button>
+            <a id="link-qr" class="btn" href="/qr.svg" target="_blank" rel="noreferrer">查看二维码</a>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>行为</h2>
+          <label class="switch-row">
+            <span>
+              <strong>新会话自动武装</strong>
+              <em>开启后，新出现的会话会自动允许手机接管其审批与提问。默认关闭，以免抢走你在电脑上的操作。</em>
+            </span>
+            <input id="pref-autoarm" type="checkbox" />
+          </label>
+          <label class="field-row">
+            <span>
+              <strong>等待手机作答</strong>
+              <em>手机没回应时，多少秒后回落给电脑上的原生弹窗（请求不会丢）。</em>
+            </span>
+            <input id="pref-timeout" type="number" min="5" max="3600" step="5" inputmode="numeric" />
+          </label>
+          <div class="row">
+            <button id="btn-save-prefs" class="btn btn-primary" type="button">保存</button>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h2>连接</h2>
+          <div id="conn-info" class="kv"></div>
+          <div class="row">
+            <button id="btn-reload" class="btn" type="button">重新加载</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <nav class="tabbar">
+      <button class="tab" data-view="pending" type="button">
+        <span class="tab-icon">🔔</span>
+        <span class="tab-label">待办</span>
+        <span id="badge-pending" class="badge" hidden>0</span>
+      </button>
+      <button class="tab" data-view="sessions" type="button">
+        <span class="tab-icon">🗂</span>
+        <span class="tab-label">会话</span>
+      </button>
+      <button class="tab" data-view="feed" type="button">
+        <span class="tab-icon">📡</span>
+        <span class="tab-label">动态</span>
+      </button>
+    </nav>
+
+    <div id="toast" class="toast" hidden></div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>

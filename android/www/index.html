@@ -1,0 +1,369 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>DSH 手机控制台</title>
+    <style>
+      :root { color-scheme: dark; }
+      * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+      body {
+        margin: 0; min-height: 100vh; background: #11131a; color: #e7e9ee;
+        font: 15px/1.6 -apple-system, "Segoe UI", "Noto Sans CJK SC", sans-serif;
+      }
+      header {
+        position: sticky; top: 0; z-index: 10; background: #11131a;
+        border-bottom: 1px solid #232836; padding: 14px 16px 0;
+      }
+      h1 { font-size: 18px; margin: 0 0 10px; }
+      nav { display: flex; gap: 6px; }
+      nav button {
+        flex: 1; border: 0; background: transparent; color: #9aa1b1; font-size: 14px;
+        padding: 9px 4px; border-bottom: 2px solid transparent;
+      }
+      nav button.on { color: #e7e9ee; border-bottom-color: #3d6df0; }
+      main { padding: 16px; }
+      section { display: none; }
+      section.on { display: block; }
+      label { display: block; font-size: 13px; color: #9aa1b1; margin: 0 0 6px; }
+      input {
+        width: 100%; padding: 13px 14px; border-radius: 10px; border: 1px solid #2b3040;
+        background: #1a1e28; color: #e7e9ee; font-size: 15px;
+      }
+      input:focus { outline: none; border-color: #3d6df0; }
+      button.act {
+        width: 100%; margin-top: 12px; padding: 13px 14px; border: 0; border-radius: 10px;
+        background: #3d6df0; color: #fff; font-size: 15px; font-weight: 600;
+      }
+      button.act.secondary { background: #232838; color: #cdd3e0; font-weight: 500; }
+      button.act:disabled { opacity: .5; }
+      .row { display: flex; gap: 10px; }
+      .row > * { flex: 1; }
+      .msg { margin-top: 12px; font-size: 13px; min-height: 20px; }
+      .msg.err { color: #ff8a8a; }
+      .msg.ok { color: #7ee0a8; }
+      .check { display: flex; gap: 10px; padding: 10px 0; border-top: 1px solid #1e2331; }
+      .check:first-child { border-top: 0; }
+      .check .mark { flex: 0 0 18px; font-size: 15px; }
+      .check .body { min-width: 0; }
+      .check .name { font-size: 13px; font-weight: 600; }
+      .check .detail { font-size: 12px; color: #9aa1b1; word-break: break-word; white-space: pre-wrap; }
+      .verdict {
+        margin-top: 12px; padding: 12px 14px; border-radius: 10px; font-size: 13px;
+        background: #1a2436; border: 1px solid #2b3f63; white-space: pre-wrap;
+      }
+      .verdict.bad { background: #2a1a1d; border-color: #5c2b33; }
+      .verdict.good { background: #16241d; border-color: #2b5c3f; }
+      #log {
+        margin-top: 10px; background: #0d0f15; border: 1px solid #232836; border-radius: 10px;
+        padding: 10px; font: 11px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
+        white-space: pre-wrap; word-break: break-all; height: 52vh; overflow: auto; color: #c3cad8;
+      }
+      #log .E { color: #ff8a8a; }
+      #log .W { color: #ffc978; }
+      ol { padding-left: 20px; color: #9aa1b1; font-size: 13px; }
+      code { background: #1a1e28; padding: 2px 6px; border-radius: 5px; color: #cdd3e0; }
+      .hint { font-size: 12px; color: #9aa1b1; margin-top: 12px; }
+      .toggle {
+        display: flex; align-items: center; gap: 10px; margin-top: 12px;
+        font-size: 13px; color: #cdd3e0;
+      }
+      .toggle input { width: 18px; height: 18px; accent-color: #3d6df0; flex: 0 0 auto; }
+      .card { border: 1px solid #232836; border-radius: 10px; padding: 4px 14px; margin-top: 12px; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>DSH 手机控制台</h1>
+      <nav>
+        <button id="tab-pair" class="on">配对</button>
+        <button id="tab-diag">诊断</button>
+        <button id="tab-log">日志</button>
+      </nav>
+    </header>
+
+    <main>
+      <!-- ── 配对 ───────────────────────────────────────────────── -->
+      <section id="sec-pair" class="on">
+        <label for="pairing">配对地址</label>
+        <input id="pairing" type="url" inputmode="url" autocomplete="off" spellcheck="false"
+               placeholder="http://192.168.1.5:8799/?k=..." />
+        <button id="pair" class="act">配对并启动后台服务</button>
+        <div class="row">
+          <button id="open" class="act secondary">打开控制台</button>
+          <button id="stop" class="act secondary">停止后台服务</button>
+        </div>
+        <div id="pair-msg" class="msg"></div>
+
+        <p class="hint">在电脑上的 DSH 里执行 <code>/mobile url</code>，把输出的地址整段复制到这里。</p>
+        <ol>
+          <li>手机与电脑连同一个 Wi-Fi</li>
+          <li>电脑上执行 <code>/mobile on</code> 让会话接受手机接管</li>
+          <li>执行 <code>/mobile url</code> 复制配对地址</li>
+        </ol>
+      </section>
+
+      <!-- ── 诊断 ───────────────────────────────────────────────── -->
+      <section id="sec-diag">
+        <button id="diag-run" class="act">运行诊断</button>
+        <div id="diag-msg" class="msg"></div>
+        <div id="diag-verdict" class="verdict" style="display:none"></div>
+        <div id="diag-list" class="card"></div>
+        <button id="diag-promotion" class="act secondary" style="display:none">去打开系统「实时更新」开关</button>
+        <p class="hint">
+          诊断只回答一个问题：<b>为什么通知不是灵动岛</b>。逐条查系统版本、通知权限、
+          实时更新开关、厂商通道、后台服务、能不能连上电脑。
+        </p>
+      </section>
+
+      <!-- ── 日志 ───────────────────────────────────────────────── -->
+      <section id="sec-log">
+        <div class="row">
+          <button id="log-refresh" class="act secondary">刷新</button>
+          <button id="log-copy" class="act">复制全部</button>
+          <button id="log-clear" class="act secondary">清空</button>
+        </div>
+        <div id="log-msg" class="msg"></div>
+        <div id="log"></div>
+        <button id="log-purge" class="act secondary">清理过时日志</button>
+        <label class="toggle" for="log-auto-purge">
+          <input id="log-auto-purge" type="checkbox" />
+          <span>启动时自动清理过时日志</span>
+        </label>
+        <p class="hint" id="log-keep-hint"></p>
+        <p class="hint">
+          日志同时落在应用的 <code>filesDir/logs/app.log</code>，<b>杀进程重启后仍然在</b>——
+          所以「启动就失败」这种情况也能看到上一次发生了什么。
+          「清理过时日志」会删掉轮转出来的旧文件，并去掉超过保留天数的记录。
+        </p>
+      </section>
+    </main>
+
+    <script>
+      // 用 Capacitor 的自定义插件桥（PairingPlugin）读写原生配置。不用 localStorage：
+      // 后台服务是原生进程，读不到 WebView 的存储。
+      const Plugins = (globalThis.Capacitor && globalThis.Capacitor.Plugins) || {}
+      const Pairing = Plugins.Pairing
+
+      let lastSeq = 0
+      const $ = (id) => document.getElementById(id)
+
+      /** 显示一条状态信息。 */
+      const say = (el, text, kind) => {
+        el.textContent = text || ''
+        el.className = `msg ${kind || ''}`
+      }
+
+      // ── 标签页 ──────────────────────────────────────────────────
+      const tabs = [['tab-pair', 'sec-pair'], ['tab-diag', 'sec-diag'], ['tab-log', 'sec-log']]
+      for (const [tabId, secId] of tabs) {
+        $(tabId).addEventListener('click', () => {
+          for (const [t, s] of tabs) {
+            $(t).classList.toggle('on', t === tabId)
+            $(s).classList.toggle('on', s === secId)
+          }
+          if (secId === 'sec-diag') runDiagnose()
+          if (secId === 'sec-log') refreshLog()
+        })
+      }
+
+      if (!Pairing) say($('pair-msg'), '原生桥未就绪：请通过 Android 应用打开本页面。', 'err')
+
+      // ── 配对 ────────────────────────────────────────────────────
+      if (Pairing) {
+        Pairing.load()
+          .then((saved) => {
+            if (saved && saved.url) {
+              $('pairing').value = saved.url
+              say($('pair-msg'), '已配对：' + (saved.base || ''), 'ok')
+            }
+          })
+          .catch((error) => say($('pair-msg'), '读取配置失败：' + (error && error.message ? error.message : error), 'err'))
+      }
+
+      $('pair').addEventListener('click', async () => {
+        if (!Pairing) return
+        const url = $('pairing').value.trim()
+        if (!url) return say($('pair-msg'), '请先填配对地址', 'err')
+        say($('pair-msg'), '正在配对…')
+        try {
+          const result = await Pairing.save({ url })
+          if (result && result.ok === false) return say($('pair-msg'), result.error || '配对失败', 'err')
+          say($('pair-msg'), '配对成功。切到「诊断」看看通不通。', 'ok')
+        } catch (error) {
+          say($('pair-msg'), '配对失败：' + (error && error.message ? error.message : error), 'err')
+        }
+      })
+
+      $('open').addEventListener('click', async () => {
+        if (!Pairing) return
+        try {
+          await Pairing.open()
+        } catch (error) {
+          say($('pair-msg'), '打开失败：' + (error && error.message ? error.message : error), 'err')
+        }
+      })
+
+      $('stop').addEventListener('click', async () => {
+        if (!Pairing) return
+        try {
+          await Pairing.stop()
+          say($('pair-msg'), '后台服务已停止。', 'ok')
+        } catch (error) {
+          say($('pair-msg'), '停止失败：' + (error && error.message ? error.message : error), 'err')
+        }
+      })
+
+      // ── 诊断 ────────────────────────────────────────────────────
+      async function runDiagnose() {
+        if (!Pairing) return
+        say($('diag-msg'), '正在诊断…')
+        $('diag-list').replaceChildren()
+        $('diag-verdict').style.display = 'none'
+        $('diag-promotion').style.display = 'none'
+        try {
+          const report = await Pairing.diagnose()
+          say($('diag-msg'), '')
+          const list = $('diag-list')
+          list.replaceChildren()
+          const checks = (report && report.checks) || []
+          for (const check of checks) {
+            const row = document.createElement('div')
+            row.className = 'check'
+            const mark = document.createElement('div')
+            mark.className = 'mark'
+            mark.textContent = check.ok ? '✅' : '❌'
+            const body = document.createElement('div')
+            body.className = 'body'
+            const name = document.createElement('div')
+            name.className = 'name'
+            name.textContent = check.label || check.id || ''
+            const detail = document.createElement('div')
+            detail.className = 'detail'
+            detail.textContent = check.detail || ''
+            body.append(name, detail)
+            row.append(mark, body)
+            list.append(row)
+          }
+          const verdict = $('diag-verdict')
+          const text = (report && report.verdict) || '没有结论'
+          verdict.textContent = text
+          verdict.className = 'verdict ' + (text.indexOf('不可能') >= 0 || text.indexOf('没开') >= 0 ? 'bad' : 'good')
+          verdict.style.display = 'block'
+          const promotion = checks.find((item) => item.id === 'promotion')
+          if (promotion && promotion.ok === false && report.platform && report.platform.sdk >= 36) {
+            $('diag-promotion').style.display = 'block'
+          }
+        } catch (error) {
+          say($('diag-msg'), '诊断失败：' + (error && error.message ? error.message : error), 'err')
+        }
+      }
+      $('diag-run').addEventListener('click', runDiagnose)
+
+      $('diag-promotion').addEventListener('click', async () => {
+        try {
+          await Pairing.openPromotionSettings()
+        } catch (error) {
+          say($('diag-msg'), '打不开系统设置。请手动：系统设置 → 通知 → 本应用 → 实时更新。', 'err')
+        }
+      })
+
+      // ── 日志 ────────────────────────────────────────────────────
+      function renderEntries(entries) {
+        const box = $('log')
+        for (const entry of entries) {
+          const line = document.createElement('div')
+          line.className = entry.level
+          line.textContent = entry.date + ' ' + entry.level + '/' + entry.tag + ' ' + entry.message
+          box.append(line)
+        }
+        box.scrollTop = box.scrollHeight
+      }
+
+      async function refreshLog() {
+        if (!Pairing) return
+        try {
+          const result = await Pairing.logs({ since: lastSeq })
+          if (result && typeof result.lastSeq === 'number') lastSeq = result.lastSeq
+          const entries = (result && result.entries) || []
+          if (entries.length > 0) renderEntries(entries)
+        } catch (error) {
+          say($('log-msg'), '读日志失败：' + (error && error.message ? error.message : error), 'err')
+        }
+      }
+
+      // 停在日志页时每 2 秒增量拉一次。
+      setInterval(() => {
+        if ($('sec-log').classList.contains('on')) refreshLog()
+      }, 2000)
+
+      $('log-refresh').addEventListener('click', () => {
+        lastSeq = 0
+        $('log').replaceChildren()
+        refreshLog()
+      })
+
+      $('log-copy').addEventListener('click', async () => {
+        if (!Pairing) return
+        try {
+          const result = await Pairing.logsText()
+          await navigator.clipboard.writeText((result && result.text) || '')
+          say($('log-msg'), '已复制全部日志，直接发给开发者即可。', 'ok')
+        } catch (error) {
+          say($('log-msg'), '复制失败：' + (error && error.message ? error.message : error), 'err')
+        }
+      })
+
+      $('log-clear').addEventListener('click', async () => {
+        if (!Pairing) return
+        try {
+          await Pairing.clearLogs()
+          lastSeq = 0
+          $('log').replaceChildren()
+          refreshLog()
+        } catch (error) {
+          say($('log-msg'), '清空失败：' + (error && error.message ? error.message : error), 'err')
+        }
+      })
+
+      // ── 过时日志清理 ────────────────────────────────────────────
+      async function loadLogPrefs() {
+        if (!Pairing) return
+        try {
+          const prefs = await Pairing.logPrefs()
+          $('log-auto-purge').checked = !!(prefs && prefs.autoPurge)
+          const days = (prefs && prefs.keepDays) || 3
+          $('log-keep-hint').textContent = `清理时保留最近 ${days} 天的记录；轮转出来的旧文件会被直接删掉。`
+        } catch (error) {
+          say($('log-msg'), '读取日志设置失败：' + (error && error.message ? error.message : error), 'err')
+        }
+      }
+
+      $('log-auto-purge').addEventListener('change', async () => {
+        if (!Pairing) return
+        try {
+          await Pairing.setLogPrefs({ autoPurge: $('log-auto-purge').checked })
+          say($('log-msg'), $('log-auto-purge').checked ? '已开启：每次启动自动清理过时日志' : '已关闭：启动时不再自动清理', 'ok')
+        } catch (error) {
+          say($('log-msg'), '保存失败：' + (error && error.message ? error.message : error), 'err')
+        }
+      })
+
+      $('log-purge').addEventListener('click', async () => {
+        if (!Pairing) return
+        try {
+          const result = await Pairing.purgeLogs()
+          say($('log-msg'), (result && result.summary) || '清理完成', 'ok')
+          // 内存里的条目被重建过，重置增量位置重新拉一遍，免得页面留着已删掉的旧记录。
+          lastSeq = 0
+          $('log').replaceChildren()
+          refreshLog()
+        } catch (error) {
+          say($('log-msg'), '清理失败：' + (error && error.message ? error.message : error), 'err')
+        }
+      })
+
+      loadLogPrefs()
+    </script>
+  </body>
+</html>

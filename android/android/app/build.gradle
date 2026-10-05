@@ -1,0 +1,99 @@
+apply plugin: 'com.android.application'
+
+// ── 正式签名 ──────────────────────────────────────────────────────────────
+//
+// 密钥库路径与口令放在 android/android/keystore.properties（**不入库**，见 .gitignore）。
+// 你要发布自己的版本时，先自己生成一份密钥库：
+//
+//   keytool -genkeypair -v -keystore android/android/keystore/release.jks \
+//     -alias harness-pocket -keyalg RSA -keysize 2048 -validity 10000 \
+//     -storetype PKCS12 -dname "CN=你的名字, O=你的组织, C=CN"
+//
+// 然后写好 keystore.properties。**这份密钥库要备份好**：丢了就无法再发布同签名的更新，
+// 用户会因为签名不一致装不上你的新版本。
+//
+// 没有 keystore.properties 时，release 会构建成**未签名**产物：能构建成功，但装不上，
+// 一眼就能发现配置没到位。这里刻意不退回调试签名——那会让人以为打出了正式包。
+def keystorePropsFile = rootProject.file('keystore.properties')
+def hasReleaseSigning = keystorePropsFile.exists()
+def keystoreProps = new Properties()
+if (hasReleaseSigning) {
+    keystorePropsFile.withInputStream { keystoreProps.load(it) }
+}
+
+android {
+    namespace = "com.dsh.mobileconsole"
+    compileSdk = rootProject.ext.compileSdkVersion
+    buildToolsVersion = rootProject.ext.buildToolsVersion
+    defaultConfig {
+        applicationId "com.dsh.mobileconsole"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        aaptOptions {
+             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
+             // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
+            ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+    }
+    signingConfigs {
+        if (hasReleaseSigning) {
+            release {
+                // 相对 app 模块解析，即 android/android/keystore/release.jks
+                storeFile file(keystoreProps['storeFile'])
+                storePassword keystoreProps['storePassword']
+                keyAlias keystoreProps['keyAlias']
+                keyPassword keystoreProps['keyPassword']
+
+                // 签名方案显式定下来，不靠默认值：
+                //   v1 关掉——它是给 Android 7.0 以下用的，而 minSdk 已经是 24，
+                //      而 v2 正是 Android 7.0 引入的，所以 v2 就够覆盖全部支持版本。
+                //   v3 打开——它支持**密钥轮换**。哪天真需要换签名密钥（比如担心泄露），
+                //      有 v3 才能发布"新旧密钥都有证明"的更新；否则老用户只能卸载重装。
+                enableV1Signing false
+                enableV2Signing true
+                enableV3Signing true
+            }
+        }
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            if (hasReleaseSigning) {
+                signingConfig signingConfigs.release
+            }
+        }
+    }
+}
+
+repositories {
+    flatDir{
+        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
+    implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+    implementation project(':capacitor-android')
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    implementation project(':capacitor-cordova-android-plugins')
+}
+
+apply from: 'capacitor.build.gradle'
+
+try {
+    def servicesJSON = file('google-services.json')
+    if (servicesJSON.text) {
+        apply plugin: 'com.google.gms.google-services'
+    }
+} catch(Exception e) {
+    logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+}
