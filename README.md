@@ -52,7 +52,7 @@ harness-pocket/
 ### 第一步：电脑端装插件
 
 ```bash
-dsh plugin --profile desktop add <项目目录>/plugin
+dsh plugin --profile desktop add https://github.com/flux9527/harness-pocket/tree/main/plugin
 ```
 
 装完**重启 DSH**（或等它热重载）。这一步的作用是把包加进 profile 的 `dependencies`
