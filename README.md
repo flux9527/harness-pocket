@@ -81,9 +81,9 @@ New-NetFirewallRule -DisplayName "DSH Mobile Console" -Direction Inbound `
 
 ### 第二步：手机端装应用
 
-**方式一：直接从 Releases 下载**（最省事）
+**方式一：直接从 [Releases](https://github.com/flux9527/harness-pocket/releases) 下载**（最省事）
 
-到本仓库的 **Releases** 页面下载最新的 `.apk`，传到手机点击安装即可。
+到本仓库的 **[Releases](https://github.com/flux9527/harness-pocket/releases)** 页面下载最新的 `.apk`，传到手机点击安装即可。
 它是**正式签名**的包，可以直接覆盖升级。
 
 **方式二：自己构建**
